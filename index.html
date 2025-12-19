@@ -1,128 +1,91 @@
 <!DOCTYPE html>
 <html lang="ja">
 <head>
-  <meta charset="UTF-8" />
+  <meta charset="UTF-8">
   <title>猫カフェ</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
   <style>
-    :root {
-      --accent: rgba(80, 180, 180, 0.65);
-      --accent-light: rgba(80, 180, 180, 0.15);
-      --text-main: #1f2933;
-      --text-sub: #4b5563;
-      --bg-main: #f7faf9;
-      --card-bg: rgba(255, 255, 255, 0.75);
-      --border-soft: rgba(80, 180, 180, 0.25);
-    }
-
-    * {
-      box-sizing: border-box;
-    }
-
     body {
       margin: 0;
-      padding: 0;
-      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI",
-                   "Hiragino Sans", "Noto Sans JP", sans-serif;
-      background: linear-gradient(
-        135deg,
-        rgba(200, 230, 230, 0.35),
-        rgba(220, 245, 240, 0.35)
-      );
-      color: var(--text-main);
-      line-height: 1.7;
+      font-family: "Helvetica Neue", "Hiragino Kaku Gothic ProN", Meiryo, sans-serif;
+      background: linear-gradient(180deg, #eef7f8, #ffffff);
+      color: #333;
     }
 
     .container {
-      max-width: 860px;
-      margin: 80px auto;
-      padding: 48px 56px;
-      background: var(--card-bg);
-      backdrop-filter: blur(10px);
+      max-width: 760px;
+      margin: 60px auto;
+      padding: 40px;
+      background: rgba(255, 255, 255, 0.9);
       border-radius: 20px;
-      border: 1px solid var(--border-soft);
-      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.06);
+      box-shadow: 0 20px 40px rgba(0, 150, 160, 0.08);
     }
 
     h1 {
-      font-size: 2.4rem;
-      margin-bottom: 0.5em;
-      letter-spacing: 0.05em;
+      text-align: center;
+      color: #4aa6a6;
+      letter-spacing: 0.1em;
+      margin-bottom: 24px;
+    }
+
+    .profile-image {
+      display: flex;
+      justify-content: center;
+      margin-bottom: 32px;
+    }
+
+    .profile-image img {
+      width: 260px;
+      border-radius: 24px;
+      box-shadow: 0 12px 30px rgba(0, 0, 0, 0.15);
     }
 
     h2 {
-      margin-top: 2.5em;
-      margin-bottom: 0.6em;
-      font-size: 1.4rem;
-      color: var(--accent);
-      position: relative;
-    }
-
-    h2::after {
-      content: "";
-      display: block;
-      width: 40px;
-      height: 2px;
-      background: var(--accent);
-      margin-top: 6px;
-      border-radius: 2px;
-      opacity: 0.6;
+      color: #5fbcbc;
+      border-left: 4px solid rgba(95, 188, 188, 0.6);
+      padding-left: 12px;
+      margin-top: 40px;
     }
 
     p {
-      color: var(--text-sub);
-      margin: 0.6em 0;
+      line-height: 1.8;
+      margin-top: 16px;
     }
 
     ul {
-      padding-left: 1.2em;
-      margin-top: 0.8em;
-    }
-
-    li {
-      margin: 0.4em 0;
-      color: var(--text-sub);
+      margin-top: 16px;
+      padding-left: 20px;
     }
 
     a {
-      color: var(--accent);
+      color: #4aa6a6;
       text-decoration: none;
-      border-bottom: 1px solid transparent;
-      transition: all 0.2s ease;
     }
 
     a:hover {
-      border-bottom: 1px solid var(--accent);
-      opacity: 0.85;
-    }
-
-    .footer {
-      margin-top: 3em;
-      font-size: 0.85rem;
-      color: rgba(75, 85, 99, 0.7);
+      text-decoration: underline;
     }
   </style>
 </head>
 
 <body>
-  <main class="container">
+  <div class="container">
     <h1>猫カフェ</h1>
 
-    <h2>まずは</h2>
+    <div class="profile-image">
+      <img src="images/miqote_idol.png" alt="profile image">
+    </div>
+
+    <h2>はじめまして</h2>
     <p>
-      はじめにゃして！<br />
-      フロリアです！猫ですよ
-    </p>
-    <p>
-      Githubを学んでいます。ものづくりや表現することに興味があり、
-      Webやデジタルコンテンツにも関心を持っています。
+      はじめにゃして！<br>
+      フロリアです！<br>
+      Githubを学んでいます。ものづくりや表現することに興味があり、Webやデジタルコンテンツにも関心を持っています。
     </p>
 
     <h2>このページについて...？</h2>
     <p>
-      Markdownはとても使いやすいと思います！！！<br />
-      好きにニャリました！
+      Markdownはとても使いやすいと思います！！！好きにニャリました！
     </p>
 
     <h2>使用したもの</h2>
@@ -134,21 +97,9 @@
 
     <h2>リンク</h2>
     <ul>
-      <li>
-        <a href="https://space.bilibili.com/8447233" target="_blank">
-          Bilibili
-        </a>
-      </li>
-      <li>
-        <a href="https://github.com/FloriaHimmel" target="_blank">
-          GitHub
-        </a>
-      </li>
+      <li><a href="https://space.bilibili.com/8447233" target="_blank">Bilibili</a></li>
+      <li><a href="https://github.com/FloriaHimmel" target="_blank">GitHub</a></li>
     </ul>
-
-    <div class="footer">
-      © Floria Himmel
-    </div>
-  </main>
+  </div>
 </body>
 </html>
