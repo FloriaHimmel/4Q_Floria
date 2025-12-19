@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8" />
+  <title>猫カフェ</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <style>
+    :root {
+      --accent: rgba(80, 180, 180, 0.65);
+      --accent-light: rgba(80, 180, 180, 0.15);
+      --text-main: #1f2933;
+      --text-sub: #4b5563;
+      --bg-main: #f7faf9;
+      --card-bg: rgba(255, 255, 255, 0.75);
+      --border-soft: rgba(80, 180, 180, 0.25);
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      padding: 0;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI",
+                   "Hiragino Sans", "Noto Sans JP", sans-serif;
+      background: linear-gradient(
+        135deg,
+        rgba(200, 230, 230, 0.35),
+        rgba(220, 245, 240, 0.35)
+      );
+      color: var(--text-main);
+      line-height: 1.7;
+    }
+
+    .container {
+      max-width: 860px;
+      margin: 80px auto;
+      padding: 48px 56px;
+      background: var(--card-bg);
+      backdrop-filter: blur(10px);
+      border-radius: 20px;
+      border: 1px solid var(--border-soft);
+      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.06);
+    }
+
+    h1 {
+      font-size: 2.4rem;
+      margin-bottom: 0.5em;
+      letter-spacing: 0.05em;
+    }
+
+    h2 {
+      margin-top: 2.5em;
+      margin-bottom: 0.6em;
+      font-size: 1.4rem;
+      color: var(--accent);
+      position: relative;
+    }
+
+    h2::after {
+      content: "";
+      display: block;
+      width: 40px;
+      height: 2px;
+      background: var(--accent);
+      margin-top: 6px;
+      border-radius: 2px;
+      opacity: 0.6;
+    }
+
+    p {
+      color: var(--text-sub);
+      margin: 0.6em 0;
+    }
+
+    ul {
+      padding-left: 1.2em;
+      margin-top: 0.8em;
+    }
+
+    li {
+      margin: 0.4em 0;
+      color: var(--text-sub);
+    }
+
+    a {
+      color: var(--accent);
+      text-decoration: none;
+      border-bottom: 1px solid transparent;
+      transition: all 0.2s ease;
+    }
+
+    a:hover {
+      border-bottom: 1px solid var(--accent);
+      opacity: 0.85;
+    }
+
+    .footer {
+      margin-top: 3em;
+      font-size: 0.85rem;
+      color: rgba(75, 85, 99, 0.7);
+    }
+  </style>
+</head>
+
+<body>
+  <main class="container">
+    <h1>猫カフェ</h1>
+
+    <h2>まずは</h2>
+    <p>
+      はじめにゃして！<br />
+      フロリアです！猫ですよ
+    </p>
+    <p>
+      Githubを学んでいます。ものづくりや表現することに興味があり、
+      Webやデジタルコンテンツにも関心を持っています。
+    </p>
+
+    <h2>このページについて...？</h2>
+    <p>
+      Markdownはとても使いやすいと思います！！！<br />
+      好きにニャリました！
+    </p>
+
+    <h2>使用したもの</h2>
+    <ul>
+      <li>Markdown</li>
+      <li>GitHub Pages</li>
+      <li>HTML</li>
+    </ul>
+
+    <h2>リンク</h2>
+    <ul>
+      <li>
+        <a href="https://space.bilibili.com/8447233" target="_blank">
+          Bilibili
+        </a>
+      </li>
+      <li>
+        <a href="https://github.com/FloriaHimmel" target="_blank">
+          GitHub
+        </a>
+      </li>
+    </ul>
+
+    <div class="footer">
+      © Floria Himmel
+    </div>
+  </main>
+</body>
+</html>
