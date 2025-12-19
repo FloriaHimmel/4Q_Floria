@@ -1,6 +1,3 @@
-<script>
-  marked.parse(markdownText)
-</script>
 
 # 猫カフェ
 
