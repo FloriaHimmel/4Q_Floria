@@ -1,0 +1,535 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Relaxing Water Sort</title>
+  <style>
+    body {
+      font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+      text-align: center;
+      background: #ede0c8;
+      margin: 0;
+      padding: 0;
+      overflow: hidden;
+      user-select: none; /* 防止双击选中文字 */
+    }
+    .game-container {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      position: relative;
+      z-index: 1;
+    }
+    h1 { color: #555; margin-bottom: 10px; }
+    .game {
+      display: flex;
+      justify-content: center;
+      flex-wrap: wrap;
+      margin-top: 20px;
+      max-width: 900px;
+    }
+    .tube {
+      width: 60px;
+      height: 280px;
+      background: rgba(255, 255, 255, 0.5); /* 稍微透明一点更好看 */
+      border: 3px solid #888;
+      margin: 10px;
+      display: flex;
+      flex-direction: column-reverse;
+      justify-content: flex-start;
+      align-items: center;
+      cursor: pointer;
+      border-radius: 0 0 25px 25px; /* 底部更圆润，像真实试管 */
+      position: relative;
+      overflow: hidden;
+      box-shadow: inset 0 0 10px rgba(0,0,0,0.1), 0 5px 15px rgba(0,0,0,0.2);
+      transition: transform 0.2s, border-color 0.2s;
+    }
+    .tube:hover {
+      transform: translateY(-5px);
+    }
+    .liquid {
+      width: 100%;
+      height: 20%;
+      margin: 0;
+      transition: all 0.4s cubic-bezier(0.25, 1, 0.5, 1); /* 更流畅的液体动画 */
+      box-shadow: inset 0 0 5px rgba(0,0,0,0.1); /* 液体立体感 */
+    }
+    /* 模拟液面 */
+    .liquid:last-child {
+        border-radius: 5px 5px 0 0;
+        opacity: 0.95;
+    }
+    .controls {
+      margin-top: 15px;
+      background: rgba(255, 255, 255, 0.9);
+      padding: 15px 25px;
+      border-radius: 50px;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      justify-content: center;
+    }
+    button {
+      padding: 10px 20px;
+      cursor: pointer;
+      background-color: #4CAF50;
+      color: white;
+      border: none;
+      border-radius: 25px;
+      font-size: 15px;
+      font-weight: bold;
+      transition: background 0.2s, transform 0.1s;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+    }
+    button:active { transform: scale(0.95); }
+    button:disabled {
+      background-color: #ccc;
+      cursor: not-allowed;
+      box-shadow: none;
+    }
+    button:hover:not(:disabled) { background-color: #45a049; }
+    
+    /* 特殊按钮样式 */
+    #addTube { background-color: #2196F3; } /* 蓝色 */
+    #addTube:hover { background-color: #0b7dda; }
+    #retryLevel { background-color: #ff9800; } /* 橙色 */
+    #undoMove { background-color: #9c27b0; } /* 紫色 */
+
+    .language {
+      display: flex;
+      align-items: center;
+      margin-left: 10px;
+    }
+    select {
+        padding: 5px;
+        border-radius: 5px;
+        border: 1px solid #ccc;
+    }
+
+    /* 胜利提示遮罩 */
+    #winScreen {
+      display: none;
+      position: fixed;
+      top: 20%;
+      left: 50%;
+      transform: translateX(-50%);
+      background: rgba(255, 255, 255, 0.95);
+      padding: 30px 60px;
+      border-radius: 20px;
+      color: #333;
+      font-size: 2.5em;
+      font-weight: bold;
+      z-index: 20;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+      pointer-events: none;
+      animation: popIn 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+      text-align: center;
+      white-space: nowrap;
+    }
+    @keyframes popIn {
+      from { transform: translateX(-50%) scale(0.5); opacity: 0; }
+      to { transform: translateX(-50%) scale(1); opacity: 1; }
+    }
+  </style>
+  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+</head>
+<body>
+  
+  <div class="game-container">
+    <h1 id="title">Water Sort</h1>
+    <div class="controls">
+      <button id="undoMove">Undo</button>
+      <button id="addTube" title="Add an empty tube">+1 Tube</button>
+      <button id="retryLevel">Retry</button>
+      <button id="refreshLevel">Refresh</button>
+      <button id="prevLevel">Prev Level</button>
+      <button id="nextLevel" disabled>Next Level</button>
+      
+      <div class="language">
+        <select id="lang">
+          <option value="zh">中文</option>
+          <option value="en">English</option>
+          <option value="jp">日本語</option>
+        </select>
+      </div>
+    </div>
+    <div id="game" class="game"></div>
+  </div>
+
+  <div id="winScreen"></div>
+  <canvas id="fireworksCanvas" style="position:fixed;top:0;left:0;width:100vw;height:100vh;z-index:10;pointer-events:none;"></canvas>
+
+  <script>
+    /* ================= 语言配置 ================= */
+    const LANG_TEXT = {
+      en: {
+        title: 'Relaxing Water Sort',
+        nextLevel: 'Next Level',
+        win: '🎉 Beautiful! 🎉',
+        retry: 'Retry',
+        undo: 'Undo',
+        refresh: 'Refresh',
+        previousLevel: 'Prev Level',
+        addTube: '+1 Tube'
+      },
+      zh: {
+        title: '轻松倒水 (解压版)',
+        nextLevel: '下一关',
+        win: '🎉 完美通关！🎉',
+        retry: '重试',
+        undo: '撤回',
+        refresh: '重新生成',
+        previousLevel: '上一关',
+        addTube: '+1 空管'
+      },
+      jp: {
+        title: 'リラックス・ソート',
+        nextLevel: '次のレベル',
+        win: '🎉 素晴らしい！🎉',
+        retry: 'やり直す',
+        undo: '戻す',
+        refresh: '再生成',
+        previousLevel: '前のレベル',
+        addTube: '+1 試験管'
+      }
+    };
+
+    const COLOR_PALETTES = [
+      '#FF9AA2', '#FFB7B2', '#FFDAC1', '#E2F0CB', '#B5EAD7', '#C7CEEA', '#91bce0', '#f0d98c'
+    ];
+    
+    const LEVEL_CONFIGS = [
+      { tubes: 5, colors: 3, empty: 2, height: 4 }, // 关卡1：3色，2空 -> 极易
+      { tubes: 6, colors: 4, empty: 2, height: 4 }, // 关卡2：4色，2空
+      { tubes: 7, colors: 5, empty: 2, height: 4 }, // 关卡3：5色，2空
+      { tubes: 8, colors: 5, empty: 3, height: 4 }, // 关卡4：5色，3空 -> 很宽裕
+      { tubes: 8, colors: 6, empty: 2, height: 5 }, // 关卡5：高度增加
+      { tubes: 9, colors: 6, empty: 3, height: 5 }, 
+      { tubes: 10, colors: 7, empty: 3, height: 5 }
+    ];
+
+    let currentLevel = localStorage.getItem('level_easy') ? parseInt(localStorage.getItem('level_easy')) : 0;
+    let lang = localStorage.getItem('lang') || 'zh'; // 默认中文
+    let tubes = [];
+    let selectedTube = null;
+    let historyStack = [];
+    let originalState = [];
+    let tubeHeight = 4;
+    let isFireworksActive = false; 
+
+    /* ================= 游戏逻辑 ================= */
+
+    function deepCopy(state) {
+      return JSON.parse(JSON.stringify(state));
+    }
+
+    function setLanguage(l) {
+      lang = l;
+      localStorage.setItem('lang', l);
+      $('#title').text(LANG_TEXT[lang].title);
+      $('#nextLevel').text(LANG_TEXT[lang].nextLevel);
+      $('#retryLevel').text(LANG_TEXT[lang].retry);
+      $('#refreshLevel').text(LANG_TEXT[lang].refresh);
+      $('#prevLevel').text(LANG_TEXT[lang].previousLevel);
+      $('#undoMove').text(LANG_TEXT[lang].undo);
+      $('#winScreen').text(LANG_TEXT[lang].win);
+      $('#addTube').text(LANG_TEXT[lang].addTube);
+    }
+
+    $('#lang').val(lang);
+    $('#lang').on('change', () => setLanguage($('#lang').val()));
+
+    function generateLevel(levelNum) {
+      let config = LEVEL_CONFIGS[levelNum] || LEVEL_CONFIGS[LEVEL_CONFIGS.length - 1];
+      
+      const { tubes: TUBE_COUNT, colors: COLOR_COUNT, empty, height } = config;
+      tubeHeight = height;
+      const COLORS = COLOR_PALETTES.slice(0, COLOR_COUNT);
+      const pool = [];
+      
+      // 生成色块
+      COLORS.forEach(color => {
+        for (let i = 0; i < height; i++) pool.push(color);
+      });
+      
+      shuffle(pool);
+      
+      const levelTubes = Array.from({ length: TUBE_COUNT }, () => []);
+      
+      // 分配颜色
+      let i = 0;
+      // 确保只填充非空管（保留最后 empty 个管子为空）
+      const fillableTubes = TUBE_COUNT - empty;
+      
+      while (pool.length > 0) {
+        if (levelTubes[i].length < height) levelTubes[i].push(pool.pop());
+        i = (i + 1) % fillableTubes;
+      }
+      return levelTubes;
+    }
+
+    function render() {
+      const $game = $('#game');
+      $game.empty();
+      const heightPercent = 100 / tubeHeight;
+      tubes.forEach((tube, idx) => {
+        const $tube = $('<div>').addClass('tube').data('index', idx);
+        
+        if (selectedTube === idx) {
+             $tube.css('border-color', '#2196F3').css('transform', 'translateY(-15px)');
+        }
+
+        tube.forEach(color => {
+          const $liq = $('<div>').addClass('liquid').css({
+            'background': color,
+            'height': heightPercent + '%'
+          });
+          $tube.append($liq);
+        });
+        $game.append($tube);
+      });
+    }
+
+    function getMoveCount(from) {
+      const color = tubes[from][tubes[from].length - 1];
+      let count = 1;
+      for (let i = tubes[from].length - 2; i >= 0; i--) {
+        if (tubes[from][i] === color) count++;
+        else break;
+      }
+      return count;
+    }
+
+    function canPour(from, to) {
+      if (from === to || tubes[from].length === 0 || tubes[to].length >= tubeHeight) return false;
+      const color = tubes[from][tubes[from].length - 1];
+      const topColor = tubes[to][tubes[to].length - 1];
+      const moveCount = getMoveCount(from);
+      const space = tubeHeight - tubes[to].length;
+      return (!topColor || color === topColor) && moveCount <= space;
+    }
+
+    function pour(from, to) {
+      const moveCount = getMoveCount(from);
+      for (let i = 0; i < moveCount; i++) {
+        tubes[to].push(tubes[from].pop());
+      }
+    }
+
+    function isFullSingleColor(tube) {
+      return tube.length === tubeHeight && tube.every(c => c === tube[0]);
+    }
+
+    function checkWin() {
+      let completedTubes = 0;
+      let nonEmptyTubes = 0;
+
+      tubes.forEach(tube => {
+        if (tube.length > 0) {
+            nonEmptyTubes++;
+            if (isFullSingleColor(tube)) {
+                completedTubes++;
+            }
+        }
+      });
+
+      // 如果所有非空管子都是完成状态，则胜利
+      if (nonEmptyTubes > 0 && completedTubes === nonEmptyTubes) {
+        $('#nextLevel').prop('disabled', false);
+        $('#winScreen').fadeIn();
+        startFireworks(); 
+        return true;
+      }
+      return false;
+    }
+
+    function shuffle(arr) {
+      for (let i = arr.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [arr[i], arr[j]] = [arr[j], arr[i]];
+      }
+    }
+
+    function loadLevel() {
+      stopFireworks(); 
+      $('#winScreen').hide();
+      $('#nextLevel').prop('disabled', true);
+      tubes = generateLevel(currentLevel);
+      originalState = deepCopy(tubes); // 注意：originalState不包含后期加的管子，重试会回到初始数量
+      historyStack = [];
+      selectedTube = null;
+      render();
+    }
+
+    $('#nextLevel').on('click', () => {
+      currentLevel++;
+      localStorage.setItem('level_easy', currentLevel);
+      loadLevel();
+    });
+
+    $('#prevLevel').on('click', () => {
+      if (currentLevel > 0) {
+        currentLevel--;
+        localStorage.setItem('level_easy', currentLevel);
+        loadLevel();
+      }
+    });
+
+    $('#refreshLevel').on('click', () => loadLevel());
+
+    $('#retryLevel').on('click', () => {
+      stopFireworks();
+      $('#winScreen').hide();
+      tubes = deepCopy(originalState);
+      historyStack = [];
+      selectedTube = null;
+      render();
+    });
+
+    $('#addTube').on('click', () => {
+        if (!$('#nextLevel').prop('disabled')) return;
+        
+        historyStack.push(deepCopy(tubes)); 
+        tubes.push([]); 
+        render();
+    });
+
+    $('#undoMove').on('click', () => {
+      if (historyStack.length > 0) {
+        tubes = historyStack.pop();
+        render();
+        if(!checkWin()) {
+             stopFireworks();
+             $('#winScreen').hide();
+             $('#nextLevel').prop('disabled', true);
+        }
+      }
+    });
+
+    $(document).on('click', '.tube', function () {
+      if (!$('#nextLevel').prop('disabled')) return;
+
+      const index = $(this).data('index');
+      
+      if (!tubes[index]) { render(); return; }
+
+      if (selectedTube === null) {
+        if (tubes[index].length > 0) {
+            selectedTube = index;
+            render();
+        }
+      } else {
+        if (selectedTube === index) {
+            selectedTube = null;
+            render();
+        } else {
+            if (canPour(selectedTube, index)) {
+              historyStack.push(deepCopy(tubes));
+              pour(selectedTube, index);
+              selectedTube = null;
+              render();
+              checkWin();
+            } else {
+              if (tubes[index].length > 0) {
+                  selectedTube = index;
+                  render();
+              } else {
+                  selectedTube = null;
+                  render();
+              }
+            }
+        }
+      }
+    });
+
+    setLanguage(lang);
+
+    let animationId;
+    const canvas = document.getElementById('fireworksCanvas');
+    const ctx = canvas.getContext('2d');
+    let particles = [];
+    
+    const FIREWORK_COLORS = ['#FF1461', '#18FF92', '#5A87FF', '#FBF38C', '#FF00FF', '#00FFFF', '#FFD700'];
+
+    function resizeCanvas() {
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+    }
+    window.addEventListener('resize', resizeCanvas);
+    resizeCanvas();
+
+    function createParticle(x, y) {
+        const particleCount = 50;
+        for (let i = 0; i < particleCount; i++) {
+            const angle = Math.random() * Math.PI * 2;
+            const velocity = Math.random() * 6 + 2;
+            particles.push({
+                x: x,
+                y: y,
+                vx: Math.cos(angle) * velocity,
+                vy: Math.sin(angle) * velocity,
+                color: FIREWORK_COLORS[Math.floor(Math.random() * FIREWORK_COLORS.length)],
+                alpha: 1,
+                decay: Math.random() * 0.02 + 0.01,
+                gravity: 0.15 
+            });
+        }
+    }
+
+    function loopFireworks() {
+        ctx.fillStyle = 'rgba(0, 0, 0, 0.1)'; 
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+        if (Math.random() < 0.08) { 
+            createParticle(
+                Math.random() * canvas.width, 
+                Math.random() * canvas.height * 0.5 
+            );
+        }
+
+        particles.forEach((p, index) => {
+            p.x += p.vx;
+            p.y += p.vy;
+            p.vy += p.gravity;
+            p.alpha -= p.decay;
+
+            if (p.alpha <= 0) {
+                particles.splice(index, 1);
+            } else {
+                ctx.globalAlpha = p.alpha;
+                ctx.fillStyle = p.color;
+                ctx.beginPath();
+                ctx.arc(p.x, p.y, 3, 0, Math.PI * 2);
+                ctx.fill();
+            }
+        });
+
+        if (isFireworksActive) {
+            animationId = requestAnimationFrame(loopFireworks);
+        } else {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+        }
+    }
+
+    function startFireworks() {
+        if (isFireworksActive) return;
+        isFireworksActive = true;
+        createParticle(canvas.width / 2, canvas.height / 3);
+        loopFireworks();
+    }
+
+    function stopFireworks() {
+        isFireworksActive = false;
+        cancelAnimationFrame(animationId);
+        particles = [];
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+    }
+
+    loadLevel();
+  </script>
+</body>
+</html>

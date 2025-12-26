@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>おみくじ</title>
+    <style>
+        body{
+            font-family: "Yu Gothic";
+            background-color: #fff9e6;
+            text-align: center;
+            padding: 30px;
+        }
+        h1 {
+      color: #a3473b;
+    }
+
+    input, button {
+      padding: 10px;
+      margin: 10px;
+      font-size: 1em;
+      border-radius: 8px;
+      border: 1px solid #ccc;
+    }
+
+    button {
+      background-color: #d9a441;
+      color: white;
+      cursor: pointer;
+    }
+
+    button:hover {
+      background-color: #c18c28;
+    }
+
+    #resultArea {
+      margin-top: 20px;
+      font-size: 1.2em;
+    }
+
+    #history {
+      margin-top: 30px;
+      text-align: left;
+      max-width: 600px;
+      margin-left: auto;
+      margin-right: auto;
+      background-color: #f8f0d9;
+      padding: 15px;
+      border-radius: 10px;
+    }
+
+    .history-item {
+      margin-bottom: 10px;
+    }
+    </style>
+</head>
+<body>
+    <h1>🎴 運勢おみくじ 🎴</h1>
+    <p>
+        おみくじを引く理由は？
+    </p>
+    <input type="text" id="reason" placeholder="例：試験のため"/>
+    <br>
+    <button onclick="drawFortune()">おみくじを引く</button>
+    <div id="resultArea"></div>
+
+<div id="history">
+  <h3>📜 おみくじ履歴</h3>
+  <div id="historyList"></div>
+</div>
+
+<script>
+  const fortunes = [
+    {
+      name: "大吉",
+      text: "運気は最高潮、願いごとはすべて叶います。",
+      advice: "積極的に行動すれば、思わぬ幸運が訪れます。"
+    },
+    {
+      name: "中吉",
+      text: "運気は良好、努力すれば報われます。",
+      advice: "目の前のチャンスを大切に。"
+    },
+    {
+      name: "小吉",
+      text: "小さな幸せが訪れる兆し。",
+      advice: "焦らず一歩ずつ進みましょう。"
+    },
+    {
+      name: "吉",
+      text: "平穏無事な日々が続くでしょう。",
+      advice: "地道な努力が吉と出ます。"
+    },
+    {
+      name: "凶",
+      text: "運気が低迷気味、注意が必要です。",
+      advice: "冷静に物事を見つめなおしましょう。"
+    },
+    {
+      name: "大凶",
+      text: "波乱の兆し、慎重な行動を心がけて。",
+      advice: "無理せず、静かに過ごすのが吉です。"
+    }
+  ];
+
+  function drawFortune() {
+    const reason = document.getElementById("reason").value.trim();
+    if (!reason) {
+      alert("おみくじを引く理由を入力してください。");
+      return;
+    }
+
+    const index = Math.floor(Math.random() * fortunes.length);
+    const fortune = fortunes[index];
+
+    alert("あなたの運勢は【" + fortune.name + "】です！");
+
+    const now = new Date();
+    const timestamp = now.toLocaleString('ja-JP');
+
+    document.getElementById("resultArea").innerHTML = `
+      <p><strong>運勢：</strong>${fortune.name}</p>
+      <p><strong>お告げ：</strong>${fortune.text}</p>
+      <p><strong>アドバイス：</strong>${fortune.advice}</p>
+      <p><strong>願いごと：</strong>${reason}</p>
+      <p><strong>日時：</strong>${timestamp}</p>
+    `;
+
+    const historyList = document.getElementById("historyList");
+    const item = document.createElement("div");
+    item.className = "history-item";
+    item.textContent = `${timestamp} - ${fortune.name} - ${reason}`;
+    historyList.prepend(item);
+  }
+</script>
+</body>
+</html>
