@@ -11,7 +11,7 @@
       margin: 0;
       padding: 0;
       overflow: hidden;
-      user-select: none; /* 防止双击选中文字 */
+      user-select: none;
     }
     .game-container {
       display: flex;
@@ -33,7 +33,7 @@
     .tube {
       width: 60px;
       height: 280px;
-      background: rgba(255, 255, 255, 0.5); /* 稍微透明一点更好看 */
+      background: rgba(255, 255, 255, 0.5);
       border: 3px solid #888;
       margin: 10px;
       display: flex;
@@ -41,7 +41,7 @@
       justify-content: flex-start;
       align-items: center;
       cursor: pointer;
-      border-radius: 0 0 25px 25px; /* 底部更圆润，像真实试管 */
+      border-radius: 0 0 25px 25px;
       position: relative;
       overflow: hidden;
       box-shadow: inset 0 0 10px rgba(0,0,0,0.1), 0 5px 15px rgba(0,0,0,0.2);
@@ -54,10 +54,9 @@
       width: 100%;
       height: 20%;
       margin: 0;
-      transition: all 0.4s cubic-bezier(0.25, 1, 0.5, 1); /* 更流畅的液体动画 */
-      box-shadow: inset 0 0 5px rgba(0,0,0,0.1); /* 液体立体感 */
+      transition: all 0.4s cubic-bezier(0.25, 1, 0.5, 1);
+      box-shadow: inset 0 0 5px rgba(0,0,0,0.1);
     }
-    /* 模拟液面 */
     .liquid:last-child {
         border-radius: 5px 5px 0 0;
         opacity: 0.95;
@@ -72,6 +71,7 @@
       gap: 10px;
       flex-wrap: wrap;
       justify-content: center;
+      align-items: center;
     }
     button {
       padding: 10px 20px;
@@ -93,11 +93,12 @@
     }
     button:hover:not(:disabled) { background-color: #45a049; }
     
-    /* 特殊按钮样式 */
-    #addTube { background-color: #2196F3; } /* 蓝色 */
+    #addTube { background-color: #2196F3; }
     #addTube:hover { background-color: #0b7dda; }
-    #retryLevel { background-color: #ff9800; } /* 橙色 */
-    #undoMove { background-color: #9c27b0; } /* 紫色 */
+    #retryLevel { background-color: #ff9800; }
+    #undoMove { background-color: #9c27b0; }
+    /* 帮助按钮样式 */
+    #showHelp { background-color: #607D8B; min-width: 40px; padding: 10px; } 
 
     .language {
       display: flex;
@@ -130,6 +131,39 @@
       text-align: center;
       white-space: nowrap;
     }
+
+    /* 玩法说明弹窗遮罩 */
+    #tutorialModal {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.6);
+      z-index: 50;
+      justify-content: center;
+      align-items: center;
+      backdrop-filter: blur(3px);
+    }
+    .tutorial-content {
+      background: white;
+      padding: 30px;
+      border-radius: 20px;
+      max-width: 500px;
+      width: 80%;
+      box-shadow: 0 10px 25px rgba(0,0,0,0.3);
+      text-align: left;
+      animation: slideDown 0.3s ease-out;
+    }
+    .tutorial-content h2 { margin-top: 0; color: #333; text-align: center;}
+    .tutorial-content ul { line-height: 1.8; color: #555; font-size: 1.1em; padding-left: 20px;}
+    .tutorial-content .btn-container { text-align: center; margin-top: 25px; }
+    
+    @keyframes slideDown {
+      from { transform: translateY(-50px); opacity: 0; }
+      to { transform: translateY(0); opacity: 1; }
+    }
     @keyframes popIn {
       from { transform: translateX(-50%) scale(0.5); opacity: 0; }
       to { transform: translateX(-50%) scale(1); opacity: 1; }
@@ -149,6 +183,8 @@
       <button id="prevLevel">Prev Level</button>
       <button id="nextLevel" disabled>Next Level</button>
       
+      <button id="showHelp" title="How to Play">?</button>
+      
       <div class="language">
         <select id="lang">
           <option value="zh">中文</option>
@@ -161,6 +197,22 @@
   </div>
 
   <div id="winScreen"></div>
+  
+  <div id="tutorialModal">
+    <div class="tutorial-content">
+      <h2 id="tutorialTitle">How to Play</h2>
+      <ul id="tutorialList">
+        <li>Tap a tube to select the top water.</li>
+        <li>Tap another tube to pour the water.</li>
+        <li>You can only pour if the colors match and there is space.</li>
+        <li>Goal: Sort all colors into their own tubes!</li>
+      </ul>
+      <div class="btn-container">
+        <button id="closeTutorial">Got it!</button>
+      </div>
+    </div>
+  </div>
+
   <canvas id="fireworksCanvas" style="position:fixed;top:0;left:0;width:100vw;height:100vh;z-index:10;pointer-events:none;"></canvas>
 
   <script>
@@ -174,7 +226,17 @@
         undo: 'Undo',
         refresh: 'Refresh',
         previousLevel: 'Prev Level',
-        addTube: '+1 Tube'
+        addTube: '+1 Tube',
+        helpBtn: '?',
+        tTitle: 'How to Play',
+        tList: [
+            'Tap a tube to select the top liquid.',
+            'Tap another tube to pour.',
+            'Rule 1: You can only pour on the SAME color.',
+            'Rule 2: You can always pour into an EMPTY tube.',
+            'Goal: Sort all colors into separate tubes!'
+        ],
+        tOk: 'Got it!'
       },
       zh: {
         title: '轻松倒水 (解压版)',
@@ -184,7 +246,17 @@
         undo: '撤回',
         refresh: '重新生成',
         previousLevel: '上一关',
-        addTube: '+1 空管'
+        addTube: '+1 空管',
+        helpBtn: '玩法',
+        tTitle: '游戏规则',
+        tList: [
+            '点击一个试管选中最上层的水。',
+            '点击另一个试管将其倒入。',
+            '规则1：水只能倒在**相同颜色**的水上面。',
+            '规则2：任何颜色的水都可以倒进**空试管**。',
+            '目标：将所有试管里的颜色分类纯净！'
+        ],
+        tOk: '明白了'
       },
       jp: {
         title: 'リラックス・ソート',
@@ -194,26 +266,44 @@
         undo: '戻す',
         refresh: '再生成',
         previousLevel: '前のレベル',
-        addTube: '+1 試験管'
+        addTube: '+1 試験管',
+        helpBtn: '遊び方',
+        tTitle: '遊び方',
+        tList: [
+            '試験管をタップして一番上の水を選びます。',
+            '別の試験管をタップして注ぎます。',
+            'ルール1：**同じ色**の上にしか注げません。',
+            'ルール2：**空の試験管**にはどの色も注げます。',
+            '目標：すべての色を別々の試験管に分けましょう！'
+        ],
+        tOk: 'わかった'
       }
     };
-
     const COLOR_PALETTES = [
-      '#FF9AA2', '#FFB7B2', '#FFDAC1', '#E2F0CB', '#B5EAD7', '#C7CEEA', '#91bce0', '#f0d98c'
+      '#FF5252', // 鲜红
+      '#448AFF', // 亮蓝
+      '#69F0AE', // 荧光绿
+      '#FFD740', // 琥珀黄
+      '#E040FB', // 紫罗兰
+      '#FF6E40', // 深橙色
+      '#18FFFF', // 青色
+      '#8D6E63', // 棕色
+      '#607D8B', // 蓝灰
+      '#FF4081'  // 粉红
     ];
     
     const LEVEL_CONFIGS = [
-      { tubes: 5, colors: 3, empty: 2, height: 4 }, // 关卡1：3色，2空 -> 极易
-      { tubes: 6, colors: 4, empty: 2, height: 4 }, // 关卡2：4色，2空
-      { tubes: 7, colors: 5, empty: 2, height: 4 }, // 关卡3：5色，2空
-      { tubes: 8, colors: 5, empty: 3, height: 4 }, // 关卡4：5色，3空 -> 很宽裕
-      { tubes: 8, colors: 6, empty: 2, height: 5 }, // 关卡5：高度增加
+      { tubes: 5, colors: 3, empty: 2, height: 4 }, // 关卡1
+      { tubes: 6, colors: 4, empty: 2, height: 4 }, // 关卡2
+      { tubes: 7, colors: 5, empty: 2, height: 4 }, // 关卡3
+      { tubes: 8, colors: 5, empty: 3, height: 4 }, // 关卡4
+      { tubes: 8, colors: 6, empty: 2, height: 5 }, // 关卡5
       { tubes: 9, colors: 6, empty: 3, height: 5 }, 
       { tubes: 10, colors: 7, empty: 3, height: 5 }
     ];
 
     let currentLevel = localStorage.getItem('level_easy') ? parseInt(localStorage.getItem('level_easy')) : 0;
-    let lang = localStorage.getItem('lang') || 'zh'; // 默认中文
+    let lang = localStorage.getItem('lang') || 'zh';
     let tubes = [];
     let selectedTube = null;
     let historyStack = [];
@@ -221,7 +311,6 @@
     let tubeHeight = 4;
     let isFireworksActive = false; 
 
-    /* ================= 游戏逻辑 ================= */
 
     function deepCopy(state) {
       return JSON.parse(JSON.stringify(state));
@@ -230,18 +319,53 @@
     function setLanguage(l) {
       lang = l;
       localStorage.setItem('lang', l);
-      $('#title').text(LANG_TEXT[lang].title);
-      $('#nextLevel').text(LANG_TEXT[lang].nextLevel);
-      $('#retryLevel').text(LANG_TEXT[lang].retry);
-      $('#refreshLevel').text(LANG_TEXT[lang].refresh);
-      $('#prevLevel').text(LANG_TEXT[lang].previousLevel);
-      $('#undoMove').text(LANG_TEXT[lang].undo);
-      $('#winScreen').text(LANG_TEXT[lang].win);
-      $('#addTube').text(LANG_TEXT[lang].addTube);
+      const txt = LANG_TEXT[lang];
+      
+      $('#title').text(txt.title);
+      $('#nextLevel').text(txt.nextLevel);
+      $('#retryLevel').text(txt.retry);
+      $('#refreshLevel').text(txt.refresh);
+      $('#prevLevel').text(txt.previousLevel);
+      $('#undoMove').text(txt.undo);
+      $('#winScreen').text(txt.win);
+      $('#addTube').text(txt.addTube);
+      $('#showHelp').text(txt.helpBtn); // 更新帮助按钮文字
+      
+      // 更新教程弹窗文字
+      $('#tutorialTitle').text(txt.tTitle);
+      $('#closeTutorial').text(txt.tOk);
+      const $list = $('#tutorialList');
+      $list.empty();
+      txt.tList.forEach(item => {
+          // 支持简单的markdown加粗语法解析
+          const htmlItem = item.replace(/\*\*(.*?)\*\*/g, '<b>$1</b>');
+          $list.append(`<li>${htmlItem}</li>`);
+      });
     }
 
     $('#lang').val(lang);
     $('#lang').on('change', () => setLanguage($('#lang').val()));
+
+    function showTutorial() {
+        $('#tutorialModal').css('display', 'flex');
+    }
+    
+    function closeTutorial() {
+        $('#tutorialModal').fadeOut();
+        // 标记已阅读
+        localStorage.setItem('hasSeenTutorial_v2', 'true');
+    }
+
+    $('#showHelp').on('click', showTutorial);
+    $('#closeTutorial').on('click', closeTutorial);
+
+    // 检查是否第一次进入
+    $(document).ready(() => {
+        setLanguage(lang); // 初始化语言
+        if (!localStorage.getItem('hasSeenTutorial_v2')) {
+            setTimeout(showTutorial, 500); // 延迟一点显示，体验更好
+        }
+    });
 
     function generateLevel(levelNum) {
       let config = LEVEL_CONFIGS[levelNum] || LEVEL_CONFIGS[LEVEL_CONFIGS.length - 1];
@@ -251,7 +375,6 @@
       const COLORS = COLOR_PALETTES.slice(0, COLOR_COUNT);
       const pool = [];
       
-      // 生成色块
       COLORS.forEach(color => {
         for (let i = 0; i < height; i++) pool.push(color);
       });
@@ -260,9 +383,7 @@
       
       const levelTubes = Array.from({ length: TUBE_COUNT }, () => []);
       
-      // 分配颜色
       let i = 0;
-      // 确保只填充非空管（保留最后 empty 个管子为空）
       const fillableTubes = TUBE_COUNT - empty;
       
       while (pool.length > 0) {
@@ -337,7 +458,6 @@
         }
       });
 
-      // 如果所有非空管子都是完成状态，则胜利
       if (nonEmptyTubes > 0 && completedTubes === nonEmptyTubes) {
         $('#nextLevel').prop('disabled', false);
         $('#winScreen').fadeIn();
@@ -359,7 +479,7 @@
       $('#winScreen').hide();
       $('#nextLevel').prop('disabled', true);
       tubes = generateLevel(currentLevel);
-      originalState = deepCopy(tubes); // 注意：originalState不包含后期加的管子，重试会回到初始数量
+      originalState = deepCopy(tubes);
       historyStack = [];
       selectedTube = null;
       render();
@@ -445,8 +565,6 @@
         }
       }
     });
-
-    setLanguage(lang);
 
     let animationId;
     const canvas = document.getElementById('fireworksCanvas');
