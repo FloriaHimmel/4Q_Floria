@@ -50,17 +50,47 @@
       margin-bottom: 0.5em;
       letter-spacing: 0.05em;
     }
+
+    /* === 图片切换核心样式 === */
     .profile-image {
-      display: flex;
-      justify-content: center;
-      margin-bottom: 32px;
+      position: relative;
+      width: 260px; /* 必须限制宽度 */
+      height: auto;
+      margin: 0 auto 32px; /* 居中 */
+      cursor: pointer;
     }
 
     .profile-image img {
-      width: 260px;
+      width: 100%;
       border-radius: 24px;
       box-shadow: 0 12px 30px rgba(0, 0, 0, 0.15);
+      transition: opacity 0.4s ease; /* 平滑过渡效果 */
     }
+
+    /* 默认显示的图 (第一张) */
+    .img-front {
+      position: relative;
+      z-index: 2;
+      opacity: 1;
+    }
+
+    /* 悬停时显示的图 (第二张) */
+    .img-back {
+      position: absolute;
+      top: 0;
+      left: 0;
+      z-index: 1;
+      opacity: 0; /* 默认隐藏 */
+    }
+
+    /* 悬停时的逻辑：第一张变透明，露出第二张 */
+    .profile-image:hover .img-front {
+      opacity: 0;
+    }
+    .profile-image:hover .img-back {
+      opacity: 1;
+    }
+    /* ========================== */
 
     h2 {
       margin-top: 2.5em;
@@ -108,6 +138,12 @@
       opacity: 0.85;
     }
 
+    .note {
+      font-size: 0.9em;
+      color: #7d8a96;
+      margin-left: 8px;
+    }
+
     .footer {
       margin-top: 3em;
       font-size: 0.85rem;
@@ -119,42 +155,38 @@
 <body>
   <main class="container">
     <h1>猫カフェ</h1>
+    
     <div class="profile-image">
-      <img src="images/miqote_idol.png" alt="profile image">
+      <img src="images/miqote_idol.png" alt="Normal Face" class="img-front">
+      <img src="images/miqote_idol_wink.png" alt="Wink Face" class="img-back">
     </div>
-    <h2>まずは...</h2>
+
+    <h2>About Me</h2>
     <p>
       はじめにゃして！<br />
-      フロリアです！猫ですよ！
+      猫の惑星からやってきた、猫耳アイドルの<b>フロリア</b>です！
     </p>
     <p>
-      Githubを学んでいます。ものづくりや表現することに興味があり、
-      Webやデジタルコンテンツにも関心を持っています。
+      歌とダンスで、みんなに笑顔と幸せを届けるために頑張っていますにゃ！<br />
+      応援よろしくね！
     </p>
-
-    <h2>このページについて...？</h2>
-    <p>
-      Markdownはとても使いやすいと思います！！！<br />
-      好きにニャリました！
-    </p>
-
-    <h2>使用したもの</h2>
-    <ul>
-      <li>Markdown</li>
-      <li>GitHub Pages</li>
-      <li>HTML</li>
-    </ul>
 
     <h2>リンク</h2>
     <ul>
       <li>
         <a href="/4Q_Floria/2026/newyear.html" target="_blank">
-          年賀状
+          本体から届いた年賀状
         </a>
       </li>
       <li>
         <a href="https://space.bilibili.com/8447233" target="_blank">
           Bilibili
+        </a>
+        <span class="note">※ たまにここで配信しています</span>
+      </li>
+      <li>
+        <a href="https://x.com/FloriaHimmel" target="_blank">
+          X (Twitter)
         </a>
       </li>
       <li>
@@ -162,6 +194,13 @@
           GitHub
         </a>
       </li>
+    </ul>
+
+    <h2>使用したもの</h2>
+    <ul>
+      <li>Markdown</li>
+      <li>GitHub Pages</li>
+      <li>HTML & CSS</li>
     </ul>
 
     <div class="footer">
