@@ -51,47 +51,47 @@
       letter-spacing: 0.05em;
     }
 
-    /* === 图片切换核心样式 === */
-    .profile-image {
+   .profile-image {
       position: relative;
-      width: 260px; /* 必须限制宽度 */
-      height: auto;
-      margin: 0 auto 32px; /* 居中 */
+      width: 260px;  
+      height: 360px;         
+      margin: 0 auto 32px;
       cursor: pointer;
+      
+      border-radius: 24px;
+      box-shadow: 0 12px 30px rgba(0, 0, 0, 0.15);
+      overflow: hidden;       
+      background-color: #eee; 
     }
 
     .profile-image img {
+      position: absolute;
+      top: 0;
+      left: 0;
       width: 100%;
-      border-radius: 24px;
-      box-shadow: 0 12px 30px rgba(0, 0, 0, 0.15);
-      transition: opacity 0.4s ease; /* 平滑过渡效果 */
+      height: 100%;
+      
+      object-fit: cover; 
+      
+      transition: opacity 0.4s ease;
     }
 
-    /* 默认显示的图 (第一张) */
     .img-front {
-      position: relative;
       z-index: 2;
       opacity: 1;
     }
 
-    /* 悬停时显示的图 (第二张) */
     .img-back {
-      position: absolute;
-      top: 0;
-      left: 0;
       z-index: 1;
-      opacity: 0; /* 默认隐藏 */
+      opacity: 0;
     }
 
-    /* 悬停时的逻辑：第一张变透明，露出第二张 */
     .profile-image:hover .img-front {
       opacity: 0;
     }
     .profile-image:hover .img-back {
       opacity: 1;
     }
-    /* ========================== */
-
     h2 {
       margin-top: 2.5em;
       margin-bottom: 0.6em;
